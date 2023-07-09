@@ -3,6 +3,10 @@
 <link rel="stylesheet" href="http://127.0.0.1:5500/style-fontbrief.css" />
 <script src="http://127.0.0.1:5500/fonts.js" defer></script>
 <script src="http://127.0.0.1:5500/index.js" defer></script>
+
+ <script src="https://cristicoss.github.io/fontbrief-dynamic-list/fonts.js" defer></script>
+ <script src="https://cristicoss.github.io/fontbrief-dynamic-list/index.js" defer></script>
+
 */
 
 const list = document.querySelector(".filter-dynamic-wrapper");
@@ -27,7 +31,8 @@ async function renderFonts() {
     });
     const p2 = `${p}`.split(",").join("");
 
-    const html = `
+    if (fonts.indexOf(font) <= 100) {
+      const html = `
     <div id="imageFont" role="list" class="filter-dynamic-list w-dyn-items" style="">
     <div role="listitem" class="filter-dynamic-item w-dyn-item">
     <a href="https://fontbrief.webflow.io//fonts/${
@@ -35,8 +40,8 @@ async function renderFonts() {
     }" target="_blank" class="sort-button w-inline-block">
     <div class="div-block-158">
     <img src="${font.imgTitle}" loading="lazy" alt="${
-      font.name
-    }" class="image-f">
+        font.name
+      }" class="image-f">
     </div>
     <div class="foundry-name">${font.foundry}</div>
     <div class="filters-hidden">
@@ -60,7 +65,8 @@ async function renderFonts() {
     </div>
     `;
 
-    list.insertAdjacentHTML("beforeend", html);
+      list.insertAdjacentHTML("beforeend", html);
+    } else return;
   });
 }
 
