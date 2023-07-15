@@ -1,6 +1,7 @@
 "use strict";
 
-const list = document.querySelector(".filter-dynamic-wrapper");
+const lisWrapper = document.querySelector(".filter-dynamic-wrapper");
+const list = document.querySelector(".filter-dynamic-list");
 const loadingConatainer = document.querySelector(".loading_image");
 const pagContainer = document.querySelector(".pagination_container");
 const btnPag = document.querySelectorAll(".pagination_text");
@@ -86,17 +87,8 @@ class App {
       /////Build slugs////
       font.slug = font.name.split(" ").join("-").toLowerCase();
 
-      //// Take out commas////
-      let p = [];
-      font.attribute.forEach(function (a) {
-        if (a !== ",") {
-          p.push(`<p>${a}</p>`);
-        }
-      });
-      const p2 = `${p}`.split(",").join("");
-
+      ////Build html to render////
       const html = `
-      <div id="imageFont" role="list" class="filter-dynamic-list w-dyn-items" style="">
       <div role="listitem" class="filter-dynamic-item w-dyn-item">
       <a href="https://fontbrief.webflow.io//fonts/${font.slug}" target="_blank" class="sort-button w-inline-block">
       <div class="div-block-158">
@@ -105,17 +97,17 @@ class App {
       <div class="foundry-name">${font.foundry}</div>
       </a>
       </div>
-      </div>
       `;
 
       list.insertAdjacentHTML("beforeend", html);
     });
+    ////Animate items////
     window.scrollTo({ top: 0, behavior: "smooth" });
     this._showItemsWithFadeIn();
   }
 
   _showItemsWithFadeIn() {
-    const it = document.querySelectorAll(".w-dyn-items");
+    const it = document.querySelectorAll(".w-dyn-item");
 
     loadingConatainer.classList.add("hidden");
     // list.classList.remove("hidden");
