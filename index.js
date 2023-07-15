@@ -21,6 +21,7 @@ class App {
     this._pagBtnHandler(fonts);
     this._checkUncheck();
     resetBtn.addEventListener("click", () => this._reset());
+    // this._readUrl();
   }
 
   //////// Implement pagination //////////
@@ -226,7 +227,18 @@ class App {
 
     const url = new URL(window.location.href);
     url.hash = this.hashFragment;
+    console.log(url.hash.replace(/,/g, "").slice(1));
     history.pushState(null, null, url.toString().replace(/,/g, ""));
+    this._readUrl();
+  };
+
+  _readUrl = () => {
+    window.addEventListener("hashchange", function () {
+      console.log("active");
+      const newHash = window.location.hash.slice(1); // Get the new hash value
+      console.log("New hash:", newHash);
+      // Perform actions or update your application based on the new hash value
+    });
   };
   //// FILTER through the fonts /////
   _filterFonts = (arr) => {
