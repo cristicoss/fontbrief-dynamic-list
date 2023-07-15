@@ -95,8 +95,14 @@ class App {
         font.slug
       }" target="_blank" class="sort-button w-inline-block">
       <div class="div-block-158">
-      <img src="${font.imgTitle}" loading="${
-        fonts.indexOf(font) ? "lazy" : ""
+      <img src="${font.imgTitle}" ${
+        fonts.indexOf(font) !== 0 ||
+        fonts.indexOf(font) !== 1 ||
+        fonts.indexOf(font) !== 2 ||
+        fonts.indexOf(font) !== 3 ||
+        fonts.indexOf(font) !== 4
+          ? "loading=lazy"
+          : ""
       }" alt="${font.name}" class="image-f">
       </div>
       <div class="foundry-name">${font.foundry}</div>
