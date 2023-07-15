@@ -13,13 +13,13 @@ const checkboxesContainer = document.querySelectorAll(".filtre-schimbatoare");
 
 class App {
   fonts = fonts;
+  hashFragment = [];
   constructor() {
     this._paginate(fonts);
     this._renderFonts(fonts);
     this._pagBtnHandler(fonts);
     this._checkUncheck();
     resetBtn.addEventListener("click", () => this._reset());
-    this._updateUrl("1a2a1b1c");
   }
 
   //////// Implement pagination //////////
@@ -98,31 +98,11 @@ class App {
       const html = `
       <div id="imageFont" role="list" class="filter-dynamic-list w-dyn-items" style="">
       <div role="listitem" class="filter-dynamic-item w-dyn-item">
-      <a href="https://fontbrief.webflow.io//fonts/${
-        font.slug
-      }" target="_blank" class="sort-button w-inline-block">
+      <a href="https://fontbrief.webflow.io//fonts/${font.slug}" target="_blank" class="sort-button w-inline-block">
       <div class="div-block-158">
-      <img src="${font.imgTitle}" loading="lazy" alt="${
-        font.name
-      }" class="image-f">
+      <img src="${font.imgTitle}" loading="lazy" alt="${font.name}" class="image-f">
       </div>
       <div class="foundry-name">${font.foundry}</div>
-      <div class="filters-hidden">
-      <div class="foundry-ghost">
-      ${font.foundry}
-      </div>
-      <div class="name-ghost">
-      ${font.name}
-      </div>
-      <div class="attributes-ghost">
-      ${p2}    
-      </div>
-      <div class="sans-serif">${font.sans}</div>
-      <div class="workhorse">${
-        font.workhorse !== "undefined" ? font.workhorse : ""
-      }</div>
-      <div class="free">${font.free}</div>
-      </div>
       </a>
       </div>
       </div>
@@ -164,8 +144,6 @@ class App {
     checkboxesContainer.forEach((check) => {
       const uncheck = check.querySelector(".uncheck");
       check.addEventListener("click", (e) => {
-        this._updateUrl("8b8c8o");
-
         const allCheckboxes = [...check.querySelectorAll(".checkbox_filtru")];
         // console.log(allCheckboxes);
         const currCheckbox = e.target.closest(".checkbox_filtru");
@@ -224,33 +202,44 @@ class App {
           });
         }
         // Uncheck all
-        uncheck.addEventListener("click", () => {
+        uncheck.addEventListener("click", (e) => {
           for (let i = 0; i <= 4; i++)
             allCheckboxes[i].classList.remove("checkbox_color-blue");
           uncheck.classList.add("hidden");
           this._renderFonts(this.fonts);
           this._paginate(this.fonts);
           this._pagBtnHandler(this.fonts);
+          //   console.log(e.target);
+          this._updateUrl(e.target.dataset.atr);
+
           return;
         });
         const uniqueArrToFilter = [...new Set(arrToFilter)];
+        // console.log(uniqueArrToFilter);
         this._filterFonts(uniqueArrToFilter);
+        this._updateUrl(uniqueArrToFilter);
       });
     });
   };
 
   //// Update Window URL ////
   _updateUrl = (str) => {
-    const hashFragment = str;
-    const url = new URL(window.location.href);
-    url.hash = hashFragment;
-    history.pushState(null, null, url.toString());
-  };
+    if (str.toString().endsWith("x")) {
+      this.hashFragment = this.hashFragment.filter(
+        (item) => !item.includes(str[0])
+      );
+    } else {
+      this.hashFragment = Array.from(new Set(this.hashFragment.concat(str)));
+    }
 
+    const url = new URL(window.location.href);
+    url.hash = this.hashFragment;
+    history.pushState(null, null, url.toString().replace(/,/g, ""));
+  };
   //// FILTER through the fonts /////
   _filterFonts = (arr) => {
     const filteredFonts = fonts.filter((font) =>
-      font.attribute.some((res) => arr.includes(res))
+      font.expressive.some((res) => arr.includes(res))
     );
     this._renderFonts(filteredFonts);
     this._paginate(filteredFonts);
