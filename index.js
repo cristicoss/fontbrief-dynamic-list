@@ -243,7 +243,7 @@ class App {
   //// FILTER through the fonts /////
   _filterFonts = (arr) => {
     const filteredFonts = fonts.filter((font) =>
-      font.expressive.some((res) => arr.includes(res))
+      font.attribute.some((res) => arr.includes(res))
     );
     this._renderFonts(filteredFonts);
     this._paginate(filteredFonts);
