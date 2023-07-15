@@ -87,13 +87,17 @@ class App {
     newFonts.forEach((font) => {
       /////Build slugs////
       font.slug = font.name.split(" ").join("-").toLowerCase();
-
+      console.log(fonts.indexOf(font));
       ////Build html to render////
       const html = `
       <div role="listitem" class="filter-dynamic-item w-dyn-item">
-      <a href="https://fontbrief.webflow.io//fonts/${font.slug}" target="_blank" class="sort-button w-inline-block">
+      <a href="https://fontbrief.webflow.io//fonts/${
+        font.slug
+      }" target="_blank" class="sort-button w-inline-block">
       <div class="div-block-158">
-      <img src="${font.imgTitle}" loading="lazy" alt="${font.name}" class="image-f">
+      <img src="${font.imgTitle}" loading="${
+        fonts.indexOf(font) ? "lazy" : ""
+      }" alt="${font.name}" class="image-f">
       </div>
       <div class="foundry-name">${font.foundry}</div>
       </a>
