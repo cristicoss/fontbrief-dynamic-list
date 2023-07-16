@@ -21,7 +21,7 @@ class App {
     this._pagBtnHandler(fonts);
     this._checkUncheck();
     resetBtn.addEventListener("click", () => this._reset());
-    // this._readUrl();
+    window.addEventListener("load", this._readUrl());
   }
 
   //////// Implement pagination //////////
@@ -131,7 +131,7 @@ class App {
 
   _reset() {
     this._renderFonts(this.fonts);
-    this._paginate(fonts);
+    // this._paginate(fonts);
     this._pagBtnHandler(fonts);
     allCheckboxes.forEach(function (c) {
       c.classList.remove("checkbox_color-blue");
@@ -139,6 +139,8 @@ class App {
     allUncheck.forEach(function (u) {
       u.classList.add("hidden");
     });
+    history.pushState(null, null, "");
+    this._readUrl();
   }
 
   //////// Check - uncheck filters  //////////
@@ -148,18 +150,20 @@ class App {
       check.addEventListener("click", (e) => {
         const allCheckboxes = [...check.querySelectorAll(".checkbox_filtru")];
         // console.log(allCheckboxes);
+        let arrToFilter = [];
         const currCheckbox = e.target.closest(".checkbox_filtru");
         if (!currCheckbox) return;
 
-        const arrToFilter = [];
         arrToFilter.push(currCheckbox.dataset.atr);
 
         if (currCheckbox.classList.contains("checkbox_color-blue")) {
           currCheckbox.classList.remove("checkbox_color-blue");
-          allCheckboxes.forEach(function (c) {
-            arrToFilter.push(c.dataset.atr);
-          });
-          arrToFilter;
+
+          this._updateUrl(e.target.dataset.atr.slice(0, -1) + "x");
+          //   this._paginate(this.fonts);
+          //   this._pagBtnHandler(this.fonts);
+          //   this._renderFonts(this.fonts);
+          return;
         } else {
           currCheckbox.classList.add("checkbox_color-blue");
 
@@ -208,24 +212,24 @@ class App {
           for (let i = 0; i <= 4; i++)
             allCheckboxes[i].classList.remove("checkbox_color-blue");
           uncheck.classList.add("hidden");
-          this._renderFonts(this.fonts);
-          this._paginate(this.fonts);
-          this._pagBtnHandler(this.fonts);
-          //   console.log(e.target);
+          //   this._renderFonts(this.fonts);
+          //   this._paginate(this.fonts);
+          //   this._pagBtnHandler(this.fonts);
           this._updateUrl(e.target.dataset.atr);
 
           return;
         });
         const uniqueArrToFilter = [...new Set(arrToFilter)];
-        // console.log(uniqueArrToFilter);
-        this._filterFonts(uniqueArrToFilter);
+        // this._filterFonts(uniqueArrToFilter);
         this._updateUrl(uniqueArrToFilter);
+        // console.log(uniqueArrToFilter);
       });
     });
   };
 
   //// Update Window URL ////
   _updateUrl = (str) => {
+    // console.log(str.toString());
     if (str.toString().endsWith("x")) {
       this.hashFragment = this.hashFragment.filter(
         (item) => !item.includes(str[0])
@@ -236,23 +240,73 @@ class App {
 
     const url = new URL(window.location.href);
     url.hash = this.hashFragment;
-    console.log(url.hash.replace(/,/g, "").slice(1));
+
     history.pushState(null, null, url.toString().replace(/,/g, ""));
     this._readUrl();
   };
 
   _readUrl = () => {
-    window.addEventListener("hashchange", function () {
-      console.log("active");
-      const newHash = window.location.hash.slice(1); // Get the new hash value
-      console.log("New hash:", newHash);
-      // Perform actions or update your application based on the new hash value
+    const selection = window.location.hash.slice(1);
+    this._filterFonts(selection);
+    this.fonts.forEach(function (font) {
+      //   console.log(font.expressive);
     });
   };
+
   //// FILTER through the fonts /////
-  _filterFonts = (arr) => {
-    const filteredFonts = fonts.filter((font) =>
-      font.expressive.some((res) => arr.includes(res))
+  _filterFonts = (str) => {
+    // if (!str) return;
+
+    function getCombinations(regex) {
+      return (str) => {
+        const matches = str.match(regex) || [];
+        return matches.map((match) => match[0] + match[1]).join("");
+      };
+    }
+
+    ///// Get filters from url/////
+    const expr = getCombinations(/1[a-z]/g)(str)
+      ? getCombinations(/1[a-z]/g)(str)
+      : "1a1i1o1m1j";
+
+    const elgnt = getCombinations(/2[a-z]/g)(str)
+      ? getCombinations(/2[a-z]/g)(str)
+      : "2a2i2o2m2j";
+
+    const frndl = getCombinations(/3[a-z]/g)(str)
+      ? getCombinations(/3[a-z]/g)(str)
+      : "3a3i3o3m3j";
+
+    const orgnc = getCombinations(/4[a-z]/g)(str)
+      ? getCombinations(/4[a-z]/g)(str)
+      : "4a4i4o4m4j";
+
+    const prgrssv = getCombinations(/5[a-z]/g)(str)
+      ? getCombinations(/5[a-z]/g)(str)
+      : "5a5i5o5m5j";
+
+    const drng = getCombinations(/6[a-z]/g)(str)
+      ? getCombinations(/6[a-z]/g)(str)
+      : "6a6i6o6m6j";
+
+    const dscrt = getCombinations(/7[a-z]/g)(str)
+      ? getCombinations(/7[a-z]/g)(str)
+      : "7a7i7o7m7j";
+
+    const wrm = getCombinations(/8[a-z]/g)(str)
+      ? getCombinations(/8[a-z]/g)(str)
+      : "8a8i8o8m8j";
+
+    const filteredFonts = fonts.filter(
+      (font) =>
+        font.expressive.some((res) => expr.includes(res)) &&
+        font.elegant.some((res) => elgnt.includes(res)) &&
+        font.friendly.some((res) => frndl.includes(res)) &&
+        font.organic.some((res) => orgnc.includes(res)) &&
+        font.progressive.some((res) => prgrssv.includes(res)) &&
+        font.daring.some((res) => drng.includes(res)) &&
+        font.discreet.some((res) => dscrt.includes(res)) &&
+        font.warm.some((res) => wrm.includes(res))
     );
     this._renderFonts(filteredFonts);
     this._paginate(filteredFonts);
