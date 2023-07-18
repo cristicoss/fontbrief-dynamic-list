@@ -16,12 +16,13 @@ class App {
   fonts = fonts;
   hashFragment = [];
   constructor() {
-    this._paginate(fonts);
-    this._renderFonts(fonts);
-    this._pagBtnHandler(fonts);
     this._checkUncheck();
     resetBtn.addEventListener("click", () => this._reset());
-    window.addEventListener("load", this._readUrl());
+    ["hashchange", "load"].forEach((ev) =>
+      window.addEventListener(ev, this._readUrl)
+    );
+    this._paginate(fonts);
+    this._pagBtnHandler(fonts);
   }
 
   //////// Implement pagination //////////
@@ -130,26 +131,22 @@ class App {
   }
 
   _reset() {
-    this._renderFonts(this.fonts);
-    // this._paginate(fonts);
-    this._pagBtnHandler(fonts);
-    allCheckboxes.forEach(function (c) {
-      c.classList.remove("checkbox_color-blue");
-    });
-    allUncheck.forEach(function (u) {
-      u.classList.add("hidden");
-    });
-    history.pushState(null, null, "");
+    const url = new URL(window.location.href);
+    url.hash = "";
+    history.pushState(null, null, url.toString().replace(/,/g, ""));
+    // this._readUrl();
     this._readUrl();
+    this.hashFragment = [];
   }
 
   //////// Check - uncheck filters  //////////
-  _checkUncheck = (fonts) => {
+  _checkUncheck = () => {
     checkboxesContainer.forEach((check) => {
-      const uncheck = check.querySelector(".uncheck");
       check.addEventListener("click", (e) => {
+        console.log(window.location.hash.slice(1));
+        const uncheck = check.querySelector(".uncheck");
+
         const allCheckboxes = [...check.querySelectorAll(".checkbox_filtru")];
-        // console.log(allCheckboxes);
         let arrToFilter = [];
         const currCheckbox = e.target.closest(".checkbox_filtru");
         if (!currCheckbox) return;
@@ -157,22 +154,20 @@ class App {
         arrToFilter.push(currCheckbox.dataset.atr);
 
         if (currCheckbox.classList.contains("checkbox_color-blue")) {
-          currCheckbox.classList.remove("checkbox_color-blue");
+          //   currCheckbox.classList.remove("checkbox_color-blue");
 
           this._updateUrl(e.target.dataset.atr.slice(0, -1) + "x");
-          //   this._paginate(this.fonts);
-          //   this._pagBtnHandler(this.fonts);
-          //   this._renderFonts(this.fonts);
+
           return;
         } else {
-          currCheckbox.classList.add("checkbox_color-blue");
+          //   currCheckbox.classList.add("checkbox_color-blue");
 
           allCheckboxes.forEach((active) => {
             if (
               active.classList.contains("checkbox_color-blue") &&
               active !== currCheckbox
             ) {
-              uncheck.classList.remove("hidden");
+              //   uncheck.classList.remove("hidden");
               // if first box is before the last box
               if (
                 allCheckboxes.indexOf(active) <
@@ -183,8 +178,8 @@ class App {
                   i <= allCheckboxes.indexOf(currCheckbox);
                   i++
                 ) {
-                  allCheckboxes[i].classList.remove("checkbox_color-blue");
-                  allCheckboxes[i].classList.add("checkbox_color-blue");
+                  //   allCheckboxes[i].classList.remove("checkbox_color-blue");
+                  //   allCheckboxes[i].classList.add("checkbox_color-blue");
                   arrToFilter.push(allCheckboxes[i].dataset.atr);
                 }
               }
@@ -199,8 +194,8 @@ class App {
                   i <= allCheckboxes.indexOf(active);
                   i++
                 ) {
-                  allCheckboxes[i].classList.remove("checkbox_color-blue");
-                  allCheckboxes[i].classList.add("checkbox_color-blue");
+                  //   allCheckboxes[i].classList.remove("checkbox_color-blue");
+                  //   allCheckboxes[i].classList.add("checkbox_color-blue");
                   arrToFilter.push(allCheckboxes[i].dataset.atr);
                 }
               }
@@ -209,27 +204,25 @@ class App {
         }
         // Uncheck all
         uncheck.addEventListener("click", (e) => {
-          for (let i = 0; i <= 4; i++)
-            allCheckboxes[i].classList.remove("checkbox_color-blue");
+          //   for (let i = 0; i <= 4; i++)
+          //     allCheckboxes[i].classList.remove("checkbox_color-blue");
           uncheck.classList.add("hidden");
-          //   this._renderFonts(this.fonts);
-          //   this._paginate(this.fonts);
-          //   this._pagBtnHandler(this.fonts);
           this._updateUrl(e.target.dataset.atr);
-
           return;
         });
         const uniqueArrToFilter = [...new Set(arrToFilter)];
-        // this._filterFonts(uniqueArrToFilter);
         this._updateUrl(uniqueArrToFilter);
-        // console.log(uniqueArrToFilter);
+        console.log(uniqueArrToFilter);
       });
     });
   };
 
   //// Update Window URL ////
   _updateUrl = (str) => {
-    // console.log(str.toString());
+    if (!str) {
+      this._readUrl();
+      return;
+    }
     if (str.toString().endsWith("x")) {
       this.hashFragment = this.hashFragment.filter(
         (item) => !item.includes(str[0])
@@ -248,10 +241,26 @@ class App {
   _readUrl = () => {
     const selection = window.location.hash.slice(1);
     this._filterFonts(selection);
-    this.fonts.forEach(function (font) {
-      //   console.log(font.expressive);
-    });
+    this._updateFilters(selection.match(/.{1,2}/g));
   };
+
+  _updateFilters(array) {
+    allCheckboxes.forEach(function (box) {
+      if (!array) {
+        box.classList.remove("checkbox_color-blue");
+        allUncheck.forEach(function (uncheck) {
+          uncheck.classList.remove("hidden");
+          uncheck.classList.add("hidden");
+        });
+        return;
+      }
+
+      box.classList.remove("checkbox_color-blue");
+      if (array.includes(box.dataset.atr)) {
+        box.classList.add("checkbox_color-blue");
+      }
+    });
+  }
 
   //// FILTER through the fonts /////
   _filterFonts = (str) => {
